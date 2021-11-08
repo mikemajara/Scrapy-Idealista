@@ -4,6 +4,7 @@ from idealista.items import IdealistaItem
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from datetime import datetime
+from scrapy_selenium import SeleniumRequest
 
 class IdealistaSpider(CrawlSpider):
     name = "idealista"
@@ -14,14 +15,35 @@ class IdealistaSpider(CrawlSpider):
     #start_urls = ["https://www.idealista.com/venta-viviendas/leganes/el-carrascal/"]
     #start_urls = ['https://www.idealista.com/alquiler-viviendas/madrid/zona-norte/']
 
-    start_urls = ['https://www.idealista.com/venta-viviendas/madrid/carabanchel/']
+    header = {'Host': 'https://www.idealista.com/',
+              'User-Agent': 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; http://www.google.com/bot.html) Chrome/W.X.Y.Z‡ Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.8,es-ES;q=0.5,es;q=0.3',
+              'Connection': 'keep-alive',
+              'Referer': 'https://www.idealista.com/',
+              'Upgrade-Insecure-Requests': '1',
+              'Sec-Fetch-Dest': 'document',
+              'Sec-Fetch-Mode': 'navigate',
+              'Sec-Fetch-Site': 'same-origin',
+              'Sec-Fetch-User': '?1',
+              'Sec-GPC': '1'
+              }
 
-    rules = (
-            # Filter all the flats paginated by the website following the pattern indicated
-            Rule(LinkExtractor(restrict_xpaths=("//a[@class='icon-arrow-right-after']")),
-                 callback='parse_flats',
-                 follow=True),
-        )
+    start_urls = ['https://www.idealista.com/venta-viviendas/murcia-murcia/']
+
+    def start_requests(self):
+        for url in self.start_urls:
+            # yield scrapy.Request(url=url, callback=self.parse_flats
+            # , headers=self.header
+            # )
+            yield SeleniumRequest(url=url,callback=self.parse_flats)
+
+    # rules = (
+    #         # Filter all the flats paginated by the website following the pattern indicated
+    #         Rule(LinkExtractor(restrict_xpaths=("//a[@class='icon-arrow-right-after']")),
+    #              callback='parse_flats',
+    #              follow=True),
+    #     )
 
     def parse_flats(self, response):
 
@@ -62,7 +84,7 @@ class IdealistaSpider(CrawlSpider):
             item = IdealistaItem(date=datetime.now().strftime('%Y-%m-%d'),
 				 link=flat[0], price=flat[1], address=flat[2], discount=flat[3], 
                                  sqft_m2=flat[4], rooms=flat[5], floor_elevator = flat[6])
-            yield item
+            yield item.to_json()
 
     #Overriding parse_start_url to get the first page
     parse_start_url = parse_flats

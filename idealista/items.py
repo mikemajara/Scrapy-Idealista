@@ -19,3 +19,15 @@ class IdealistaItem(scrapy.Item):
     rooms = scrapy.Field()
     discount = scrapy.Field()
     floor_elevator = scrapy.Field()
+
+    def to_json(self):
+        return dict(
+            date=self['date'],
+            link=self['link'],
+            price=self['price'],
+            address=self['address'],
+            sqft_m2=self['sqft_m2'],
+            rooms=self['rooms'],
+            discount=self['discount'],
+            floor_elevator=self['floor_elevator']
+        )

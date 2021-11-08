@@ -1,0 +1,10 @@
+{
+  "[python]": {
+    "gitlens.codeLens.symbolScopes": [
+      "!Module"
+    ],
+    "editor.wordBasedSuggestions": false,
+    "editor.formatOnSave": false,
+  },
+  "python.formatting.provider": "autopep8"
+}
